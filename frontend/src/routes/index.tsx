@@ -1,22 +1,43 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from '@/components/layout/AppLayout';
 import ProtectedRoute from './ProtectedRoute';
-import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import TaskDetail from '@/pages/TaskDetail';
-import ReportPreview from '@/pages/ReportPreview';
-import TaskListPage from '@/pages/TaskListPage';
-import RatingPage from '@/pages/RatingPage';
-import ReportListPage from '@/pages/ReportListPage';
-import UserManagement from '@/pages/UserManagement';
+
+/* Code-splitting: lazy-load each page so the initial bundle stays small.
+ * Each `React.lazy()` call creates a separate chunk that Vite extracts on build. */
+const Login = React.lazy(() => import('@/pages/Login'));
+const Dashboard = React.lazy(() => import('@/pages/Dashboard'));
+const TaskDetail = React.lazy(() => import('@/pages/TaskDetail'));
+const ReportPreview = React.lazy(() => import('@/pages/ReportPreview'));
+const TaskListPage = React.lazy(() => import('@/pages/TaskListPage'));
+const RatingPage = React.lazy(() => import('@/pages/RatingPage'));
+const ReportListPage = React.lazy(() => import('@/pages/ReportListPage'));
+const UserManagement = React.lazy(() => import('@/pages/UserManagement'));
+
+/* Lightweight fallback shown while a lazy chunk is being downloaded. */
+const PageLoadingFallback: React.FC = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '60vh',
+    fontSize: '1rem',
+    color: '#999',
+  }}>
+    页面加载中...
+  </div>
+);
 
 const Router: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         {/* Login — no layout, no auth */}
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={
+          <Suspense fallback={<PageLoadingFallback />}>
+            <Login />
+          </Suspense>
+        } />
 
         {/* Protected routes — wrapped in AppLayout */}
         <Route
@@ -34,7 +55,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <Dashboard />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <Dashboard />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -44,7 +67,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <TaskDetail />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <TaskDetail />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -54,7 +79,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <ReportPreview />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <ReportPreview />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -64,7 +91,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <TaskListPage />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <TaskListPage />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -74,7 +103,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <RatingPage />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <RatingPage />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -84,7 +115,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppLayout>
-                <ReportListPage />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <ReportListPage />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }
@@ -94,7 +127,9 @@ const Router: React.FC = () => {
           element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AppLayout>
-                <UserManagement />
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <UserManagement />
+                </Suspense>
               </AppLayout>
             </ProtectedRoute>
           }

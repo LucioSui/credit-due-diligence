@@ -135,14 +135,21 @@ class FinancialReportService:
         db: AsyncSession,
         report_ids: list[str],
     ) -> dict:
-        """Compare multiple reports and return per-indicator cross-period data."""
-        reports = []
-        for rid in report_ids:
-            try:
-                r = await self.get_report(db, rid)
-                reports.append(r)
-            except HTTPException:
-                continue
+        """Compare multiple reports and return per-indicator cross-period data.
+
+        Uses a single batch query (IN clause) instead of N individual queries
+        to avoid the N+1 query problem.
+        """
+        # Batch load all reports in one query
+        stmt = select(UploadedFinancialReport).where(
+            UploadedFinancialReport.id.in_(report_ids)
+        )
+        result = await db.execute(stmt)
+        all_reports = result.scalars().all()
+
+        # Build lookup to preserve the requested order and skip missing IDs
+        reports_map = {str(r.id): r for r in all_reports}
+        reports = [reports_map[rid] for rid in report_ids if rid in reports_map]
 
         if not reports:
             return {"reports": [], "comparison": {}}

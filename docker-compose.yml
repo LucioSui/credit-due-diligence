@@ -9,10 +9,12 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/credit_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-change-this-in-production}@postgres:5432/credit_db
       - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=change-me-in-production
-      - DEBUG=true
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG:-false}
+      - ENABLE_DEMO_MODE=${ENABLE_DEMO_MODE:-false}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:5173}
     volumes:
       - uploads:/app/uploads
     depends_on:

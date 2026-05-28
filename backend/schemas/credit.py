@@ -3,9 +3,9 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
-from models.credit import CreditRating, CreditSource, PersonIdType
+from models.credit import CreditRating, CreditSource, PersonIdType, mask_id_number
 
 
 # ── Legal Person Credit (法人征信) ──────────────────────────────────────
@@ -38,7 +38,8 @@ class LegalPersonCreditDetail(BaseModel):
     company_id: str
     person_name: str
     person_id_type: PersonIdType
-    person_id_no: str
+    # Decrypted then masked ID number — never returns plaintext to the frontend.
+    person_id_no: str  # populated as masked value (e.g. 110***********1234)
     credit_source: CreditSource
     credit_rating: Optional[CreditRating] = None
     loan_accounts: Optional[dict] = None
@@ -49,6 +50,11 @@ class LegalPersonCreditDetail(BaseModel):
     report_snapshot: Optional[dict] = None
     entered_at: datetime
     updated_at: datetime
+
+    @model_validator(mode="after")
+    def _mask_id_no(self):
+        self.person_id_no = mask_id_number(self.person_id_no)
+        return self
 
     class Config:
         from_attributes = True

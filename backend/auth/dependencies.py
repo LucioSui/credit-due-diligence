@@ -27,6 +27,12 @@ ERROR_FORBIDDEN = 1002
 _DEMO_TOKEN = "demo-token"
 
 
+def _is_demo_mode_enabled() -> bool:
+    """Check whether demo mode is enabled via environment variable."""
+    return settings.ENABLE_DEMO_MODE
+
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db),
@@ -42,8 +48,8 @@ async def get_current_user(
         detail={"code": ERROR_UNAUTHORIZED, "message": "无效的认证凭证"},
     )
 
-    # --- Demo-mode: bypass JWT verification ---
-    if token == _DEMO_TOKEN:
+    # --- Demo-mode: bypass JWT verification (disabled in production by default) ---
+    if _is_demo_mode_enabled() and token == _DEMO_TOKEN:
         demo_user = User(
             id=UUID("00000000-0000-0000-0000-000000000001"),
             username="demo",

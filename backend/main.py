@@ -6,11 +6,14 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi.errors import RateLimitExceeded
 
 from config import settings
 from database import AsyncSessionLocal, create_tables
+from limiter import limiter
 
 
 @asynccontextmanager
@@ -32,6 +35,19 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# Rate Limiter — prevents brute-force login attacks (imported from limiter module)
+limiter.init_app(app)
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(
+        status_code=429,
+        content={"code": 4290, "message": "请求过于频繁，请稍后再试", "data": None},
+    )
+
 
 # CORS middleware
 app.add_middleware(

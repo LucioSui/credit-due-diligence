@@ -48,7 +48,7 @@ async def create_task(
         return _success(TaskResponse(**task).model_dump(mode="json"))
     except Exception as exc:
         logger.exception("创建任务失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -81,7 +81,7 @@ async def list_tasks(
         return _success(result)
     except Exception as exc:
         logger.exception("获取任务列表失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -99,10 +99,10 @@ async def get_task(
         task = await task_service.get_task(db, str(task_id))
         return _success(TaskResponse(**task).model_dump(mode="json"))
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="任务不存在")
     except Exception as exc:
         logger.exception("获取任务详情失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -120,10 +120,10 @@ async def start_scan(
         task = await task_service.start_scan(db, str(task_id))
         return _success(TaskResponse(**task).model_dump(mode="json"), message="扫描已启动")
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="任务不存在")
     except Exception as exc:
         logger.exception("启动扫描失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -141,10 +141,10 @@ async def get_scan_progress(
         progress = await task_service.get_scan_progress(db, str(task_id))
         return _success(ScanProgressResponse(**progress).model_dump(mode="json"))
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="任务不存在")
     except Exception as exc:
         logger.exception("获取扫描进度失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -169,10 +169,10 @@ async def cancel_task(
     except HTTPException:
         raise
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="任务不存在")
     except Exception as exc:
         logger.exception("取消任务失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")
 
 
 # ---------------------------------------------------------------------------
@@ -197,7 +197,7 @@ async def retry_task(
     except HTTPException:
         raise
     except ValueError as exc:
-        raise HTTPException(status_code=404, detail=str(exc))
+        raise HTTPException(status_code=404, detail="任务不存在")
     except Exception as exc:
         logger.exception("重试任务失败: %s", exc)
-        raise HTTPException(status_code=500, detail=str(exc))
+        raise HTTPException(status_code=500, detail="服务器内部错误，请稍后重试")

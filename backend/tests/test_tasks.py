@@ -49,7 +49,7 @@ class TestCreateTask:
     async def test_create_task_success(self, admin_client):
         payload = {
             "company_name": "腾讯科技(深圳)有限公司",
-            "unified_credit_code": "91440300708460290H",
+            "unified_social_credit_code": "91440300708460290H",
         }
         resp = await admin_client.post("/api/tasks", json=payload)
         assert resp.status_code == 200
@@ -57,10 +57,10 @@ class TestCreateTask:
         assert data["code"] == 0
         task_data = data["data"]
         assert task_data["company_name"] == "腾讯科技(深圳)有限公司"
-        assert task_data["unified_credit_code"] == "91440300708460290H"
+        assert task_data["unified_social_credit_code"] == "91440300708460290H"
         assert task_data["status"] == "PENDING"
         assert task_data["progress"] == 0.0
-        assert "task_id" in task_data
+        assert "id" in task_data
         assert task_data["task_no"].startswith("DD-")
 
     async def test_create_task_without_credit_code(self, admin_client):
@@ -146,13 +146,13 @@ class TestGetTask:
             "/api/tasks",
             json={"company_name": "华为技术"},
         )
-        task_id = create_resp.json()["data"]["task_id"]
+        task_id = create_resp.json()["data"]["id"]
 
         resp = await admin_client.get(f"/api/tasks/{task_id}")
         assert resp.status_code == 200
         data = resp.json()
         assert data["code"] == 0
-        assert data["data"]["task_id"] == task_id
+        assert data["data"]["id"] == task_id
         assert data["data"]["company_name"] == "华为技术"
 
     async def test_get_task_not_found(self, admin_client):

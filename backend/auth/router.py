@@ -1,13 +1,15 @@
 """Authentication router — login, refresh, logout, me."""
 
+import logging
 import uuid
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_db
+from limiter import limiter
 from models.user import User
 
 from .dependencies import get_current_user
@@ -46,7 +48,12 @@ def _user_to_response(user: User) -> dict:
 
 
 @router.post("/login")
-async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
+@limiter.limit("5/minute")
+async def login(
+    request: Request,
+    payload: LoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
     """Authenticate user and return access + refresh tokens."""
     try:
         result = await db.execute(
@@ -89,9 +96,10 @@ async def login(payload: LoginRequest, db: AsyncSession = Depends(get_db)):
     except HTTPException:
         raise
     except Exception as exc:
+        logger.exception("登录接口内部错误: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=_api_response(code=5000, message=f"内部错误: {exc}"),
+            detail=_api_response(code=5000, message="服务器内部错误，请稍后重试"),
         )
 
 
@@ -124,10 +132,11 @@ async def refresh(payload: RefreshRequest):
     except HTTPException:
         raise
     except Exception as exc:
+        logger.exception("刷新令牌接口内部错误: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=_api_response(
-                code=ERROR_UNAUTHORIZED, message=f"令牌无效: {exc}"
+                code=ERROR_UNAUTHORIZED, message="令牌无效"
             ),
         )
 

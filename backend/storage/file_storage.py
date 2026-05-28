@@ -1,5 +1,6 @@
 """File storage management for uploaded documents."""
 
+import mimetypes
 import os
 import uuid
 from pathlib import Path
@@ -11,6 +12,26 @@ from config import settings
 # Error codes
 ERR_FILE_UPLOAD_FAILED = 5001
 ERR_UNSUPPORTED_FORMAT = 5003
+
+
+# Mapping from extension to allowed MIME types
+_MIME_MAP: dict[str, dict[str, set[str]]] = {
+    "financial_report": {
+        ".pdf": {"application/pdf"},
+        ".xlsx": {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+    },
+    "bank_statement": {
+        ".pdf": {"application/pdf"},
+        ".xlsx": {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+        ".jpg": {"image/jpeg"},
+        ".png": {"image/png"},
+    },
+    "credit_report": {
+        ".pdf": {"application/pdf"},
+        ".jpg": {"image/jpeg"},
+        ".png": {"image/png"},
+    },
+}
 
 
 class FileStorage:
@@ -37,9 +58,10 @@ class FileStorage:
         filename: str,
         module: str,
         file_size: int,
+        file_content: bytes | None = None,
         max_size: int = 50 * 1024 * 1024,
     ) -> None:
-        """Validate file extension and size. Raises HTTPException on failure."""
+        """Validate file extension, MIME type, and size. Raises HTTPException on failure."""
         # Check extension
         ext = Path(filename).suffix.lower()
         allowed = cls.ALLOWED_EXTENSIONS.get(module, set())
@@ -48,6 +70,30 @@ class FileStorage:
                 status_code=ERR_UNSUPPORTED_FORMAT,
                 detail=f"不支持的文件格式: {ext}，允许的格式: {', '.join(allowed)}",
             )
+
+        # Check MIME type if content is available
+        if file_content is not None:
+            mime_types = _MIME_MAP.get(module, {}).get(ext, set())
+            if mime_types:
+                # Guess MIME type from content magic bytes
+                guessed = mimetypes.guess_type(filename, strict=False)[0]
+                if guessed is None:
+                    # Fallback: check magic bytes for common types
+                    if file_content[:4] == b"%PDF":
+                        guessed = "application/pdf"
+                    elif file_content[:3] == b"\x1f\x8b\x08":
+                        guessed = "application/gzip"
+                    elif file_content[:8] == b"\x50\x4b\x03\x04\x14\x00\x06\x00":
+                        guessed = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    elif file_content[:2] == b"\xff\xd8":
+                        guessed = "image/jpeg"
+                    elif file_content[:8].startswith(b"\x89PNG"):
+                        guessed = "image/png"
+                if guessed and guessed not in mime_types:
+                    raise HTTPException(
+                        status_code=ERR_UNSUPPORTED_FORMAT,
+                        detail=f"文件内容类型不匹配: 扩展名为{ext}但检测到{guessed}",
+                    )
 
         # Check size
         if file_size > max_size:

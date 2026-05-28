@@ -27,7 +27,53 @@ logger = logging.getLogger(__name__)
 #     accept_content=["json"],
 #     timezone="Asia/Shanghai",
 #     enable_utc=True,
+#     # --- 告警与监控 ---
+#     task_acks_late=True,  # 任务完成后才 ACK，避免 Worker 崩溃丢失任务
+#     worker_prefetch_multiplier=1,  # 配合 acks_late，每个 Worker 一次只取一个任务
+#     task_reject_on_worker_lost=True,  # Worker 失联时重新入队
+#     # 任务超时与重试
+#     task_soft_time_limit=300,  # 软超时 5 分钟（发送 SoftTimeLimitExceeded）
+#     task_time_limit=600,  # 硬超时 10 分钟（直接终止）
+#     task_annotate={
+#         "*": {
+#             "retry": True,
+#             "retry_kwargs": {
+#                 "max_retries": 3,
+#                 "default_retry_delay": 60,
+#             },
+#         }
+#     },
+#     # Flower 监控面板
+#     monitor_poll_interval=15,
+#     # 结果过期时间（24 小时）
+#     result_expires=86400,
 # )
+#
+# # 任务失败告警信号
+# from celery.signals import task_failure, task_revoked
+#
+# @task_failure.connect
+# def handle_task_failure(sender=None, headers=None, body=None,
+#                        exception=None, traceback=None, **kwargs):
+#     logger.critical(
+#         "Celery task failed: %s | task_id=%s | exc=%s",
+#         sender.name if sender else "unknown",
+#         headers.get("id") if headers else "unknown",
+#         exception,
+#         exc_info=True,
+#     )
+#     # TODO: 接入告警通道（钉钉/企业微信/邮件/PagerDuty）
+#
+#
+# @task_revoked.connect
+# def handle_task_revoked(sender=None, request=None, terminated=None,
+#                        signum=None, expired=False, **kwargs):
+#     logger.warning(
+#         "Celery task revoked: task_id=%s | expired=%s | terminated=%s",
+#         request.id if request else "unknown",
+#         expired,
+#         terminated,
+#     )
 
 
 # ---------------------------------------------------------------------------
