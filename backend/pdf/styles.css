@@ -1,0 +1,194 @@
+/* 授信尽调报告 PDF 样式 */
+@page {
+    size: A4;
+    margin: 2.5cm 2cm;
+    @bottom-center {
+        content: "银行授信尽调系统 | 自动生成报告 | 第 " counter(page) " 页 / 共 " counter(pages) " 页";
+        font-size: 9pt;
+        color: #999;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    font-size: 12pt;
+    line-height: 1.8;
+    color: #333;
+}
+
+/* ── 封面 ────────────────────────────────────── */
+.cover-page {
+    text-align: center;
+    padding-top: 25vh;
+    page-break-after: always;
+}
+
+.cover-logo {
+    font-size: 14pt;
+    color: #1a73e8;
+    border-bottom: 2px solid #1a73e8;
+    display: inline-block;
+    padding-bottom: 8px;
+    margin-bottom: 60px;
+    letter-spacing: 4px;
+}
+
+.cover-title {
+    font-size: 32pt;
+    font-weight: bold;
+    color: #222;
+    margin-bottom: 16px;
+}
+
+.cover-subtitle {
+    font-size: 20pt;
+    font-weight: normal;
+    color: #666;
+    margin-bottom: 60px;
+}
+
+.cover-meta {
+    margin: 0 auto;
+    text-align: left;
+    width: 50%;
+    border-collapse: collapse;
+}
+
+.cover-meta tr td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #eee;
+    font-size: 12pt;
+}
+
+.cover-meta tr td:first-child {
+    color: #888;
+    width: 100px;
+}
+
+.confidential {
+    color: #e53935;
+    font-weight: bold;
+}
+
+/* ── 评级 ────────────────────────────────────── */
+.grade {
+    display: inline-block;
+    padding: 4px 20px;
+    border-radius: 6px;
+    font-size: 16pt;
+    font-weight: bold;
+    color: #fff;
+}
+.grade-A { background-color: #43a047; }
+.grade-B { background-color: #1e88e5; }
+.grade-C { background-color: #fb8c00; }
+.grade-D { background-color: #e53935; }
+
+/* ── 目录 ────────────────────────────────────── */
+.toc {
+    page-break-after: always;
+    padding: 20px 0;
+}
+
+.toc h2 {
+    font-size: 18pt;
+    color: #1a73e8;
+    border-bottom: 2px solid #1a73e8;
+    padding-bottom: 8px;
+    margin-bottom: 24px;
+}
+
+.toc ol {
+    padding-left: 24px;
+}
+
+.toc li {
+    padding: 6px 0;
+    font-size: 12pt;
+    color: #444;
+}
+
+/* ── 报告正文 ────────────────────────────────── */
+.report-body h1 {
+    font-size: 22pt;
+    color: #1a73e8;
+    border-bottom: 2px solid #1a73e8;
+    padding-bottom: 8px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+}
+
+.report-body h2 {
+    font-size: 16pt;
+    color: #333;
+    border-left: 4px solid #1a73e8;
+    padding-left: 12px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+
+.report-body h3 {
+    font-size: 14pt;
+    color: #555;
+    margin-top: 16px;
+    margin-bottom: 8px;
+}
+
+.report-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 24px;
+    font-size: 11pt;
+}
+
+.report-body table th {
+    background-color: #f5f5f5;
+    color: #333;
+    font-weight: 600;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.report-body table td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+}
+
+.report-body table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.report-body blockquote {
+    background-color: #f9f9f9;
+    border-left: 4px solid #1a73e8;
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: #666;
+    font-style: italic;
+}
+
+.report-body p {
+    margin-bottom: 8px;
+}
+
+/* ── 分页 ────────────────────────────────────── */
+.page-break {
+    page-break-after: always;
+}
+
+/* ── 页脚 ────────────────────────────────────── */
+.footer {
+    font-size: 9pt;
+    color: #999;
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 12px;
+    border-top: 1px solid #eee;
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ company_name }} 授信尽调报告</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 封面页 -->
+    <div class="cover-page">
+        <div class="cover-logo">银行授信尽调系统</div>
+        <h1 class="cover-title">{{ company_name }}</h1>
+        <h2 class="cover-subtitle">授信尽调报告</h2>
+        <table class="cover-meta">
+            <tr><td>报告编号</td><td>{{ task_id }}</td></tr>
+            <tr><td>生成时间</td><td>{{ generated_at }}</td></tr>
+            <tr><td>报告版本</td><td>{{ report_version }}</td></tr>
+            <tr><td>机密等级</td><td><span class="confidential">内部保密</span></td></tr>
+            <tr><td>综合评级</td><td><span class="grade grade-{{ grade }}"> Grade {{ grade }}</span></td></tr>
+        </table>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 目录 -->
+    <div class="toc">
+        <h2>目录</h2>
+        <ol>
+            <li>尽调概述</li>
+            <li>企业基本信息</li>
+            <li>司法风险</li>
+            <li>股权结构</li>
+            <li>财务分析</li>
+            <li>银行流水</li>
+            <li>信贷征信</li>
+            <li>六维评级</li>
+            <li>尽调结论</li>
+        </ol>
+    </div>
+
+    <div class="page-break"></div>
+
+    <!-- 报告正文（Markdown 渲染） -->
+    <div class="report-body">
+        {{ report_content|safe }}
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        <p>银行授信尽调系统 | 自动生成报告 | {{ generated_at }}</p>
+        <p class="page-number">第 <span class="page"></span> 页 / 共 <span class="pages"></span> 页</p>
+    </div>
+</body>
+</html>
