@@ -90,7 +90,9 @@ class TaskService:
         if status:
             stmt = stmt.where(Task.status == status)
         if creator_id:
-            stmt = stmt.where(Task.creator_id == UUID(creator_id))
+            # Normalize UUID to handle SQLite CHAR(32) storage (no dashes)
+            normalized_id = str(UUID(creator_id).hex)
+            stmt = stmt.where(Task.creator_id == normalized_id)
         stmt = stmt.order_by(Task.created_at.desc())
         stmt = stmt.offset((page - 1) * page_size).limit(page_size)
 
@@ -102,7 +104,8 @@ class TaskService:
         if status:
             count_stmt = count_stmt.where(Task.status == status)
         if creator_id:
-            count_stmt = count_stmt.where(Task.creator_id == UUID(creator_id))
+            normalized_id = str(UUID(creator_id).hex)
+            count_stmt = count_stmt.where(Task.creator_id == normalized_id)
         count_result = await db.execute(count_stmt)
         total = len(list(count_result.scalars().all()))
 

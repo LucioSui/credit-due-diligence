@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth.dependencies import get_current_user, require_approver
 from database import get_db
 from models.task import TaskStatus
+from models.user import UserRole
 from schemas.task import CreateTaskRequest, ScanProgressResponse, TaskListAPIResponse, TaskResponse, UpdateTaskRequest
 from services.task_service import TaskService
 
@@ -64,10 +65,16 @@ async def list_tasks(
 ):
     """获取任务列表."""
     try:
+        # Admin users can see all tasks; other users only see their own
+        filter_creator = (
+            str(current_user.id)
+            if current_user and current_user.role != UserRole.ADMIN
+            else None
+        )
         result = await task_service.list_tasks(
             db=db,
             status=status,
-            creator_id=str(current_user.id) if current_user else None,
+            creator_id=filter_creator,
             page=page,
             page_size=page_size,
         )

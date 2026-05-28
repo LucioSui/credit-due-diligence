@@ -3,10 +3,35 @@ import type { ApiResponse } from '@/types/api';
 import { useAuthStore } from '@/stores/authStore';
 
 const api = axios.create({ baseURL: '/api', timeout: 30000 });
+const AUTH_STORAGE_KEY = 'auth-storage';
 
-// Request interceptor: attach token from authStore
-api.interceptors.request.use((config) => {
+/**
+ * Read token from both Zustand store and localStorage.
+ * Zustand persist hydration is async — on page refresh, the store may
+ * not be hydrated yet when the first API call fires. Reading directly
+ * from localStorage ensures we always have the latest persisted token.
+ */
+function getToken(): string | null {
+  // 1. Try Zustand store (already hydrated)
   const token = useAuthStore.getState().token;
+  if (token) return token;
+
+  // 2. Fallback: read directly from localStorage
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed?.state?.token) return parsed.state.token;
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return null;
+}
+
+// Request interceptor: attach token from authStore or localStorage
+api.interceptors.request.use((config) => {
+  const token = getToken();
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
