@@ -1,21 +1,25 @@
 #!/bin/bash
 set -e
 
+# Resolve project root (parent of .devcontainer)
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+
 echo "========================================="
 echo "  Credit Due Diligence - Codespaces Setup"
+echo "  Project root: $PROJECT_ROOT"
 echo "========================================="
 
 # Install frontend dependencies
 echo ""
 echo "[1/2] Installing frontend dependencies..."
-cd /workspace/frontend
+cd "$PROJECT_ROOT/frontend"
 npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 echo "✓ Frontend dependencies installed"
 
 # Setup backend environment
 echo ""
 echo "[2/2] Configuring backend environment..."
-cd /workspace/backend
+cd "$PROJECT_ROOT/backend"
 
 # Create .env if not present (will be ignored by .gitignore)
 if [ ! -f .env ]; then
