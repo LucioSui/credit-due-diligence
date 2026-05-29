@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIASGIMiddleware
 
 from config import settings
 from database import AsyncSessionLocal, create_tables
@@ -37,8 +38,9 @@ app = FastAPI(
 )
 
 # Rate Limiter — prevents brute-force login attacks (imported from limiter module)
-limiter.init_app(app)
+# slowapi 0.1.x: set limiter on app.state and register ASGI middleware
 app.state.limiter = limiter
+app.add_middleware(SlowAPIASGIMiddleware)
 
 
 @app.exception_handler(RateLimitExceeded)

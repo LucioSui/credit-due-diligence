@@ -1,15 +1,44 @@
-node_modules
-__pycache__
-*.pyc
-*.pyo
+# Version control
 .git
 .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+.pytest_cache/
+backend/venv/
+backend/env/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Environment
 .env
 .env.local
+.env.production
+
+# Database
+*.db
+*.db-journal
+
+# Uploads
+backend/uploads/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
 .DS_Store
-*.log
-dist
-build
-.pytest_cache
-.venv
-venv
+Thumbs.db
+
+# Dev container (not needed inside Docker)
+.devcontainer/
+
+# Documentation
+docs/

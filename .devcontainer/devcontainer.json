@@ -1,0 +1,63 @@
+{
+	"name": "Credit Due Diligence System",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "22"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"dbaeumer.vscode-eslint",
+				"esbenp.prettier-vscode",
+				"bradlc.vscode-tailwindcss",
+				"ms-vscode.vscode-typescript-next"
+			],
+			"settings": {
+				"python.terminal.activateEnvironment": true,
+				"[python]": {
+					"editor.formatOnSave": true,
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": "explicit"
+					}
+				},
+				"[typescript]": {
+					"editor.formatOnSave": true
+				},
+				"[typescriptreact]": {
+					"editor.formatOnSave": true
+				}
+			}
+		}
+	},
+	"forwardPorts": [
+		{
+			"port": 8000,
+			"label": "Backend API",
+			"onAutoForward": "silent"
+		},
+		{
+			"port": 5173,
+			"label": "Frontend Dev",
+			"onAutoForward": "openPreview"
+		}
+	],
+	"portsAttributes": {
+		"8000": {
+			"requireLocalPort": true
+		},
+		"5173": {
+			"requireLocalPort": true
+		}
+	},
+	"postCreateCommand": "bash ./.devcontainer/post-create.sh",
+	"postStartCommand": "bash ./.devcontainer/start.sh",
+	"remoteUser": "vscode",
+	"mounts": []
+}

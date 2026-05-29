@@ -42,12 +42,11 @@ class Settings(BaseSettings):
     # Demo mode — must be False in production
     ENABLE_DEMO_MODE: bool = False
 
-    # CORS — read from ALLOWED_ORIGINS env var (comma-separated)
-    _allowed_origins: str | None = None
-
+    # CORS — read from CORS_ALLOWED_ORIGINS env var (comma-separated).
+    # Prefixed name avoids pydantic-settings auto-mapping it as a model field.
     @property
     def ALLOWED_ORIGINS(self) -> list[str]:
-        raw = os.getenv("ALLOWED_ORIGINS")
+        raw = os.getenv("CORS_ALLOWED_ORIGINS")
         if raw:
             return [o.strip() for o in raw.split(",") if o.strip()]
         return [
@@ -65,7 +64,7 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str = "redis://localhost:6379/1"
     CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
 
-    model_config = {"env_file": ".env", "case_sensitive": False}
+    model_config = {"env_file": ".env", "case_sensitive": False, "extra": "ignore"}
 
     @model_validator(mode="after")
     def _validate_secret_key(self):
